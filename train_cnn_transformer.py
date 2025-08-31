@@ -13,7 +13,7 @@ from cnn_transformer_model import MultiModalClassifier, get_data_loaders
 
 def train(args):
     train_loader, val_loader = get_data_loaders(
-        batch_size=args.batch_size,
+        batch_size=128,  # 统一使用128
     )
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

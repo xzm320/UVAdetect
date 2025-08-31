@@ -130,7 +130,7 @@ class CWT_CNN_Transformer(nn.Module):
     def __init__(
         self,
         in_channels: int = 31,
-        cnn_channels: List[int] | Tuple[int, ...] = (16, 32),  # 增大CNN通道数
+        cnn_channels: List[int] | Tuple[int, ...] = (64, 128, 256, 512),  # 增大CNN通道数，与单CNN一致
         embed_dim: int = 96,        # 适中的嵌入维度
         num_heads: int = 8,         # 增加注意力头数
         ff_dim: int = 192,          # 增大前馈网络维度
@@ -140,15 +140,26 @@ class CWT_CNN_Transformer(nn.Module):
         layers = []
         c_prev = in_channels
         h_reduction = 1
-        for c_out in cnn_channels:
+        
+        # 构建与单CNN模型相似的架构
+        for i, c_out in enumerate(cnn_channels):
+            # 每个块包含双卷积层
             layers += [
                 nn.Conv2d(c_prev, c_out, kernel_size=3, padding=1),
                 nn.BatchNorm2d(c_out),
                 nn.ReLU(inplace=True),
-                nn.MaxPool2d(2),
+                nn.Conv2d(c_out, c_out, kernel_size=3, padding=1),
+                nn.BatchNorm2d(c_out),
+                nn.ReLU(inplace=True),
             ]
+            
+            # 前三个块有池化，最后一个块不池化
+            if i < len(cnn_channels) - 1:
+                layers += [nn.MaxPool2d(2, 2)]
+                h_reduction *= 2
+            
             c_prev = c_out
-            h_reduction *= 2
+        
         self.cnn = nn.Sequential(*layers)
 
         # 假设输入 H=W=41，经过两次池化变为 41//4≈10
