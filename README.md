@@ -245,7 +245,6 @@ python compare/model_comparison.py
 每个模型训练过程中会自动生成：
 - 训练和验证损失曲线 (`loss_curve.png`)
 - 最佳模型权重文件 (`.pth`)
-- 分类报告 (各类别的精确率、召回率、F1分数)
 
 ## 技术特色
 
